@@ -29,6 +29,7 @@ class AJuranek_GAM415Projectile : public AActor
 	UPROPERTY(EditAnywhere)
 		UMaterial* baseMat;
 
+
 public:
 	AJuranek_GAM415Projectile();
 

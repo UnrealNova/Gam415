@@ -6,6 +6,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/DecalComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 AJuranek_GAM415Projectile::AJuranek_GAM415Projectile() 
 {
@@ -39,6 +41,18 @@ AJuranek_GAM415Projectile::AJuranek_GAM415Projectile()
 
 }
 
+void AJuranek_GAM415Projectile::BeginPlay()
+{
+	Super::BeginPlay();
+	randColor = FLinearColor(UKismetMathLibrary::RandomFloatInRange(0.f, 1.f), UKismetMathLibrary::RandomFloatInRange(0.f, 1.f), UKismetMathLibrary::RandomFloatInRange(0.f, 1.f), 1.f);
+
+	dmiMat = UMaterialInstanceDynamic::Create(projMat, this);
+	ballMesh->SetMaterial(0, dmiMat);
+
+	dmiMat->SetVectorParameterValue("ProjColor", randColor);
+}
+
+
 
 void AJuranek_GAM415Projectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -47,20 +61,24 @@ void AJuranek_GAM415Projectile::OnHit(UPrimitiveComponent* HitComp, AActor* Othe
 	{
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
-	
+		Destroy();
+
 	}
 
-	if (baseMat)
+	if (OtherActor != nullptr)
 	{
-		float ranNumX = UKismetMathLibrary::RandomFloatInRange(0.f, 1.f);
-		float ranNumY = UKismetMathLibrary::RandomFloatInRange(0.f, 1.f);
-		float ranNumZ = UKismetMathLibrary::RandomFloatInRange(0.f, 1.f);
+		if (colorP)
+		{
+			UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(colorP, HitComp, NAME_None, FVector(-20.f, 0.f, 0.f), FRotator(0.f), EAttachLocation::KeepRelativeOffset, true);
+			particleComp->SetNiagaraVariableLinearColor(FString("RandomColor"), randColor);
+			ballMesh->DestroyComponent();
+			CollisionComp->BodyInstance.SetCollisionProfileName("NoCollision");
+		}
+	
 		float frameNum = UKismetMathLibrary::RandomFloatInRange(0.f, 3.f);
 
-		FVector4 randColor = FVector4(ranNumX, ranNumY, ranNumZ, 1.f);
-
-		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), baseMat, FVector(40.f, 40.f, 40.f), Hit.Location, Hit.Normal.Rotation(), 10.f);
-		UMaterialInstanceDynamic* MatInstance = Decal->CreateDynamicMaterialInstance();
+		auto Decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), baseMat, FVector(UKismetMathLibrary::RandomFloatInRange(20.f, 40.f)), Hit.Location, Hit.Normal.Rotation(), 10.f);
+		auto MatInstance = Decal->CreateDynamicMaterialInstance();
 
 		MatInstance->SetVectorParameterValue("Color", randColor);
 		MatInstance->SetScalarParameterValue("Frame", frameNum);

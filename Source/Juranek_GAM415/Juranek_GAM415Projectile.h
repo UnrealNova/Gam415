@@ -8,7 +8,8 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
-class UDecalComponent;
+class UNiagaraSystem;
+
 
 UCLASS(config=Game)
 class AJuranek_GAM415Projectile : public AActor
@@ -23,15 +24,31 @@ class AJuranek_GAM415Projectile : public AActor
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Material", meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* ballMesh;
 
 	UPROPERTY(EditAnywhere)
 		UMaterial* baseMat;
 
+	UPROPERTY()
+	FLinearColor randColor;
+
+	UPROPERTY()
+		UMaterialInterface* projMat;
+
+	UPROPERTY()
+		UMaterialInstanceDynamic* dmiMat;
+
+	UPROPERTY(EditAnywhere)
+		UNiagaraSystem* colorP;
+
 
 public:
 	AJuranek_GAM415Projectile();
+
+protected:
+	virtual void BeginPlay();
+
 
 public:
 	/** called when projectile hits something */

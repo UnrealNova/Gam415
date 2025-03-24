@@ -7,6 +7,8 @@
 #include "Components/BoxComponent.h"
 #include "CubeDMIMat.generated.h"
 
+class UNiagaraSystem;
+
 UCLASS()
 class JURANEK_GAM415_API ACubeDMIMat : public AActor
 {
@@ -25,16 +27,19 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(editAnywhere)
-	UBoxComponent* boxComp;
+		UBoxComponent* boxComp;
 
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* cubeMesh;
+		UStaticMeshComponent* cubeMesh;
 
 	UPROPERTY(EditAnywhere)
-	UMaterialInterface* baseMat;
+		UMaterialInterface* baseMat;
 
 	UPROPERTY()
-	UMaterialInstanceDynamic* dmiMat;
+		UMaterialInstanceDynamic* dmiMat;
+
+	UPROPERTY(EditAnywhere)
+		UNiagaraSystem* colorP;
 
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
